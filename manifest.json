@@ -1,0 +1,12 @@
+{
+  "name": "Middle Click to Search",
+  "description": "A Chrome Extension that adds functionality that makes searching highlighted text easier.",
+  "version": "0.1.0",
+  "manifest_version": 3,
+
+  "background":{
+    "service_worker": "background.js"
+  },
+
+  "permissions": ["activeTab"]
+}
