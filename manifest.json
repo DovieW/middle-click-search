@@ -1,12 +1,13 @@
 {
   "name": "Middle Click to Search",
-  "description": "A Chrome Extension that adds functionality that makes searching highlighted text easier.",
+  "description": "Middle click highlighted text to open a new tab search google with that text.",
   "version": "0.1.0",
   "manifest_version": 3,
-
   "background":{
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
-
-  "permissions": ["activeTab"]
+  "permissions": [
+    "activeTab"
+  ]
 }
