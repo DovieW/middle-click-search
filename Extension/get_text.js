@@ -1,5 +1,3 @@
-console.log('Middle click extension content script loaded');
-
 document.querySelector('body').addEventListener('mouseup', (e) => {
   if (e.button === 1){
     console.log('MIDDLE CLICK');
@@ -9,8 +7,7 @@ document.querySelector('body').addEventListener('mouseup', (e) => {
       text = document.selection.createRange().text;
     }
     if (text){
-      console.log('Highlighted text: ' + text);
-      window.open('https://www.google.com/search?q=blah+blah','', '_blank').focus();
+      chrome.runtime.sendMessage({query: text});
     }
   }
 });
