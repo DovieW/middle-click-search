@@ -1,0 +1,25 @@
+{
+  "name": "Middle Click to Search",
+  "description": "Middle click highlighted text to search google with that text in a new tab.",
+  "version": "0.1.1",
+  "manifest_version": 3,
+  "background":{
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+        "matches": ["*://*/*"],
+        "js": [
+                "get_text.js"
+            ]
+    }
+  ],
+  "icons": {
+    "16": "Middle_Click16.png",
+    "48": "Middle_Click48.png",
+   "128": "Middle_Click128.png"
+  },
+  "permissions": [
+    "search"
+  ]
+}
