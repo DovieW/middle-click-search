@@ -18,8 +18,5 @@
     "16": "Middle_Click16.png",
     "48": "Middle_Click48.png",
    "128": "Middle_Click128.png"
-  },
-  "permissions": [
-    "search"
-  ]
+  }
 }
