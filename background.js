@@ -35,6 +35,6 @@ function processUrl(url) {
 function createTabNextToActive(url) {
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
     const activeTab = tabs[0];
-    chrome.tabs.create({url: url, index: activeTab.index + 1});
+    chrome.tabs.create({url: url, index: activeTab.index + 1, active: false});
   });
 }
