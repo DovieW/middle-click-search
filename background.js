@@ -33,10 +33,8 @@ function processUrl(url) {
 }
 
 function createTabNextToActive(url) {
-  // commenting out since this isn't how it's done for regular ctrl click
-  // chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-  //   const activeTab = tabs[0];
-  //   chrome.tabs.create({url: url, index: activeTab.index + 1, active: false});
-  // });
-  chrome.tabs.create({url: url, active: false});
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+    const activeTab = tabs[0];
+    chrome.tabs.create({url: url, index: activeTab.index + 1, active: true});
+  });
 }
