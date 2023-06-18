@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     targetUrl = `https://www.google.com/search?q=${searchText}`;
   }
 
-  createTabNextToActive(targetUrl);
+  createTabNextToActive(targetUrl, request.ctrlKey);
 });
 
 function processUrl(url) {
@@ -32,9 +32,13 @@ function processUrl(url) {
   }
 }
 
-function createTabNextToActive(url) {
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    const activeTab = tabs[0];
-    chrome.tabs.create({url: url, index: activeTab.index + 1, active: true});
+function createTabNextToActive(url, ctrlKey) {
+  chrome.storage.sync.get({newTabActive: true}, function(data) {
+    let shouldBeActive = data.newTabActive ? !ctrlKey : ctrlKey;
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      const activeTab = tabs[0];
+      chrome.tabs.create({url: url, index: activeTab.index + 1, active: shouldBeActive});
+    });
   });
 }
+

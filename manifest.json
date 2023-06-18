@@ -3,7 +3,7 @@
 
   "name": "Middle Click to Search",
   "description": "Middle click highlighted text to search google with that text in a new tab.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "manifest_version": 3,
   "background":{
     "service_worker": "background.js"
@@ -20,5 +20,10 @@
     "16": "Middle_Click16.png",
     "48": "Middle_Click48.png",
    "128": "Middle_Click128.png"
-  }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
+  "permissions": ["storage"]
 }
