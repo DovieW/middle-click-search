@@ -2,8 +2,8 @@
 "update_url": "https://clients2.google.com/service/update2/crx",
 
   "name": "Middle Click to Search",
-  "description": "Middle click highlighted text to search google with that text in a new tab.",
-  "version": "0.1.5",
+  "description": "Middle click highlighted text to do a search with that text in a new tab.",
+  "version": "0.1.6",
   "manifest_version": 3,
   "background":{
     "service_worker": "background.js"
