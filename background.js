@@ -7,10 +7,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     targetUrl = processedUrl;
   } else {
     const searchText = encodeURIComponent(text);
-    targetUrl = `https://www.google.com/search?q=${searchText}`;
+    chrome.storage.sync.get(['searchEngine'], function(result) {
+      let searchEngineUrl = result.searchEngine || 'https://www.google.com/search?q=%s';
+      if (searchEngineUrl.includes('%s')) {
+        targetUrl = searchEngineUrl.replace('%s', searchText);
+      } else {
+        targetUrl = "https://www.google.com/search?q=%25s+is+not+in+the+search+engine+URL";
+      }
+      createTabNextToActive(targetUrl, request.ctrlKey);
+    });
   }
-
-  createTabNextToActive(targetUrl, request.ctrlKey);
 });
 
 function processUrl(url) {

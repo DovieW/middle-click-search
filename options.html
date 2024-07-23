@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html>
-<body style="height: 20px;">
+<body style="height: 70px;">
   <input type="checkbox" id="newTabActive">
   <label for="newTabActive">Navigate to new tab (reversed by Ctrl key)</label>
+  <!-- A text field that takes a URL which represents what will be searched when middle clicked with which search engine etc. %s is replaced with the search text -->
+  <br>
+  <br>
+  <label for="searchEngine">Search engine. %s is replaced with the search term:</label>
+  <input type="text" id="searchEngine" style="width: 95%;" placeholder="https://www.google.com/search?q=%s">  
+  <br>
   <!-- <br>
   <br> -->
   <!-- <input type="checkbox" id="preventAutoscroll"> -->

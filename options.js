@@ -17,6 +17,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // }
   });
 
+  let searchEngine = document.getElementById('searchEngine');
+  chrome.storage.sync.get({searchEngine: 'https://www.google.com/search?q=%s'}, function(data) {
+    if (data.searchEngine === "") {
+      data.searchEngine = 'https://www.google.com/search?q=%s';
+    }
+    searchEngine.value = data.searchEngine;
+  });
+  searchEngine.addEventListener('change', function() {
+    chrome.storage.sync.set({searchEngine: this.value});
+  });
+
   // preventAutoscroll.addEventListener('change', function() {
   //   chrome.storage.sync.set({preventAutoscroll: this.checked});
   // });
