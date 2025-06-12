@@ -26,10 +26,22 @@ function processUrl(url) {
     return null;
   }
 
+  // Option to disable domain checking (fixes #13)
+  let disableDomainCheck = false;
+  try {
+    // Synchronously get the option from storage (chrome.storage.sync is async, so we use a workaround)
+    if (window && window.localStorage) {
+      disableDomainCheck = window.localStorage.getItem('disableDomainCheck') === 'true';
+    }
+  } catch (e) {}
+
   try {
     new URL(url);
     return url;
   } catch (e) {
+    if (disableDomainCheck) {
+      return null;
+    }
     const domainRegex = /^([a-zA-Z0-9-]{1,63}\.)+[a-zA-Z]{2,10}$/;
     if (domainRegex.test(url)) {
       return `https://${url}`;

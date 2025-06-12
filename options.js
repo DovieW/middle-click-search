@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
+  let disableDomainCheck = document.getElementById('disableDomainCheck');
+
+  // Load disableDomainCheck from localStorage
+  if (window.localStorage) {
+    disableDomainCheck.checked = window.localStorage.getItem('disableDomainCheck') === 'true';
+  }
+
+  disableDomainCheck.addEventListener('change', function() {
+    if (window.localStorage) {
+      window.localStorage.setItem('disableDomainCheck', this.checked);
+    }
+  });
   let newTabActive = document.getElementById('newTabActive');
   // let preventAutoscroll = document.getElementById('preventAutoscroll');
 

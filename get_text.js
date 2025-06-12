@@ -9,12 +9,15 @@ document.addEventListener('mousedown', (e) => {
       return;
     }
 
-    const selectedText = window.getSelection().toString().trim();
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
     if (selectedText) {
       chrome.runtime.sendMessage({
         text: selectedText,
         ctrlKey: e.ctrlKey
       });
+      // Unhighlight selected text after middle click (fixes #14)
+      selection.removeAllRanges();
     }
   }
 });
