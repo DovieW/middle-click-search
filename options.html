@@ -1,21 +1,47 @@
-<!DOCTYPE html>
-<html>
-<body style="height: 70px;">
-  <input type="checkbox" id="newTabActive">
-  <label for="newTabActive">Navigate to new tab (reversed by Ctrl key)</label>
-  <!-- A text field that takes a URL which represents what will be searched when middle clicked with which search engine etc. %s is replaced with the search text -->
-  <br>
-  <br>
-  <label for="searchEngine">Search engine. %s is replaced with the search term:</label>
-  <input type="text" id="searchEngine" style="width: 95%;" placeholder="https://www.google.com/search?q=%s">  
-  <br>
-  <!-- <br>
-  <br> -->
-  <!-- <input type="checkbox" id="preventAutoscroll"> -->
-  <!-- <label for="preventAutoscroll">Disable autoscroll. Not necessary if holding Ctrl or Shift.</label> -->
-  <br>
-  <input type="checkbox" id="disableDomainCheck">
-  <label for="disableDomainCheck">Disable domain checking (treat all as search)</label>
-  <script src="options.js"></script>
-</body>
-</html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark"><title>Middle Click to Search · Settings</title>
+  <link rel="icon" href="Middle_Click48.png"><link rel="stylesheet" href="options.css">
+  <script type="module" src="options.js"></script>
+</head>
+<body>
+  <main>
+    <header><img src="Middle_Click32.png" width="24" height="24" alt=""><h1>Middle Click to Search</h1></header>
+    <form id="settings" aria-label="Search settings">
+      <fieldset id="controls" disabled>
+        <label class="setting-row" for="enabled"><span>Enabled</span><input id="enabled" type="checkbox"></label>
+        <section aria-labelledby="search-title">
+          <h2 id="search-title">Search</h2>
+          <label class="field-row" for="enginePreset"><span>Engine</span><select id="enginePreset"><option value="custom">Custom</option></select></label>
+          <div id="customEngine">
+            <label for="searchEngine" class="sr-only">Search URL</label><input id="searchEngine" type="text" required spellcheck="false" autocomplete="off" aria-describedby="url-help url-error" placeholder="https://example.com/search?q=%s">
+            <p id="url-help" class="hint"><code>%s</code> = selected text</p><p id="url-error" class="error" aria-live="polite"></p>
+            <details class="preview"><summary>Preview</summary><output id="preview"></output></details>
+          </div>
+          <label class="setting-row" for="disableDomainCheck"><span>Always search <span class="hint inline">including URLs</span></span><input id="disableDomainCheck" type="checkbox"></label>
+        </section>
+        <section aria-labelledby="behavior-title">
+          <h2 id="behavior-title">Tabs</h2>
+          <label class="setting-row" for="newTabActive"><span>Switch to search results</span><input id="newTabActive" type="checkbox"></label>
+          <label class="field-row" for="linkFocus"><span>Middle-clicked links</span><select id="linkFocus"><option value="browser">Browser default</option><option value="foreground">Foreground</option><option value="background">Background</option></select></label>
+          <p class="hint">Ctrl / ⌘ reverses tab focus.</p>
+          <details><summary>More options</summary>
+            <label class="setting-row" for="clearSelection"><span>Clear selection</span><input id="clearSelection" type="checkbox"></label>
+            <label class="setting-row" for="preventAutoscroll"><span>Prevent autoscroll</span><input id="preventAutoscroll" type="checkbox"></label>
+            <label class="setting-row" for="copyOnSearch"><span>Copy selection to clipboard</span><input id="copyOnSearch" type="checkbox"></label>
+          </details>
+        </section>
+        <section aria-labelledby="sites-title">
+          <h2 id="sites-title">Sites</h2>
+          <label for="siteMode" class="sr-only">Where to run</label><select id="siteMode"><option value="block">Run everywhere except these sites</option><option value="allow">Run only on these sites</option></select>
+          <label for="siteRules" id="rules-label" class="sr-only">Blocked sites</label><textarea id="siteRules" rows="2" spellcheck="false" aria-describedby="rules-help rules-error" placeholder="example.com&#10;*.example.org"></textarea>
+          <p class="hint" id="rules-help">One host per line. <code>*.</code> includes subdomains.</p><p class="error" id="rules-error" aria-live="polite"></p>
+          <details id="siteExceptions"><summary>Overrides <span id="exception-count"></span></summary><div id="exceptions"></div><button type="button" id="clearExceptions" class="secondary">Clear overrides</button></details>
+        </section>
+        <div class="actions"><button type="submit" id="save" disabled>Save</button><button type="button" id="reset" class="secondary">Reset</button><p id="status" role="status" aria-live="polite"></p></div>
+      </fieldset>
+    </form>
+  </main>
+</body></html>

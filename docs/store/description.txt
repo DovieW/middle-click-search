@@ -1,0 +1,20 @@
+Select text. Middle-click. Search.
+
+Middle Click to Search opens selected text in a new tab using your preferred search engine. Select a web address to open it directly.
+
+Make it work your way:
+• Choose Google, DuckDuckGo, Bing, Brave, or a custom search URL.
+• Open searches in the foreground or background.
+• Choose foreground or background behavior for ordinary middle-clicked links.
+• Hold Ctrl or Command to reverse tab focus.
+• Enable or disable the extension on individual sites, or use an allow/block list.
+• Optionally copy selected text to the clipboard when searching.
+• Keep your selection, prevent autoscroll, or always search text that resembles a URL.
+
+The toolbar popup provides quick controls and page status. A red ! badge indicates a failed action; open the popup for details. The settings page highlights unsaved changes.
+
+Preferences sync through Chrome. There are no ads, analytics, accounts, or extension-operated servers. Search text goes to your chosen search engine when you open a search.
+
+Refresh existing webpages after installing or updating. Browser settings pages, the Chrome Web Store, and other protected pages do not support the gesture. Requires Chrome 116 or newer. A middle-click means pressing the mouse wheel.
+
+Source and support: https://github.com/DovieW/middle-click-search

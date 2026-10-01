@@ -1,29 +1,61 @@
 {
-"update_url": "https://clients2.google.com/service/update2/crx",
-
+  "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Middle Click to Search",
   "description": "Middle click highlighted text to do a search with that text in a new tab.",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "manifest_version": 3,
-  "background":{
-    "service_worker": "background.js"
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
-        "matches": ["*://*/*"],
-        "js": [
-                "get_text.js"
-            ]
+      "matches": [
+        "*://*/*"
+      ],
+      "js": [
+        "get_text.js"
+      ],
+      "all_frames": true,
+      "match_about_blank": true
     }
   ],
   "icons": {
     "16": "Middle_Click16.png",
     "48": "Middle_Click48.png",
-   "128": "Middle_Click128.png"
+    "128": "Middle_Click128.png",
+    "32": "Middle_Click32.png"
   },
   "options_ui": {
     "page": "options.html",
-    "open_in_tab": false
+    "open_in_tab": true
   },
-  "permissions": ["storage"]
+  "permissions": [
+    "storage",
+    "activeTab",
+    "offscreen",
+    "clipboardWrite"
+  ],
+  "minimum_chrome_version": "116",
+  "action": {
+    "default_title": "Middle Click to Search settings",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "Middle_Click16.png",
+      "32": "Middle_Click32.png",
+      "48": "Middle_Click48.png",
+      "128": "Middle_Click128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/settings.js",
+        "lib/sites.js"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    }
+  ]
 }

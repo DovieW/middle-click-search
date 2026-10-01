@@ -1,0 +1,28 @@
+0.2.0 Chrome Web Store update
+
+1. Package: upload middle-click-search-0.2.0.zip to the existing item.
+2. Store listing: replace the description with description.txt; replace the store icon with store-icon-128.png. Upload screenshot-settings.png and screenshot-settings-dark.png (1280x800). Replace the small promo tile with promo-small-440x280.png if desired.
+3. Privacy: review/update the permission explanations below to match this version.
+4. Save the draft, then submit for review. The GitHub release does not update the Web Store automatically.
+
+Single purpose
+Search selected webpage text or open selected web addresses with a middle-click, with configurable tab focus and site controls.
+
+Permission explanations
+storage: Save and sync search engine, tab behavior, and site preferences. Keep short error diagnostics in browser session storage.
+activeTab: When the user opens the toolbar popup, identify the current page to show page readiness and let them enable or disable the extension for that site.
+offscreen: Create a hidden extension document for clipboard writes when the user enables copy-on-search. Manifest V3 service workers cannot access the DOM needed for copying.
+clipboardWrite: Copy the selected text only when copy-on-search is enabled and the user performs a search gesture. The extension does not read the clipboard.
+Webpage access through content-script match patterns: Detect the user's middle-click and read their selection on HTTP(S) pages, including frames. Site controls determine where gestures are enabled. No browsing history is collected.
+
+Remote code
+No remote code is executed. All JavaScript is bundled in the extension. Search destinations are URLs opened in new tabs, not downloaded code.
+
+Data practices
+The extension does not collect data for the developer, sell user data, run analytics, or use advertising. Preferences sync through Chrome's own storage service. Selected text is sent to the configured search engine only when the user searches. Opt-in copying writes selected text to the user's clipboard. Short failure diagnostics remain in session storage and are cleared on navigation, dismissal, or successful retry. The developer receives no selections or search history.
+
+Privacy policy (if a URL is requested)
+https://github.com/DovieW/middle-click-search/blob/v0.2.0/PRIVACY.md
+
+Reviewer test instructions
+Use an ordinary HTTP(S) webpage. Select text and press the mouse wheel; a search tab should open beside the source tab. Ctrl/Command reverses tab focus. Open the toolbar popup for quick controls, then Settings. Select a link-focus mode, save changes, and middle-click a normal HTTP(S) link. Optionally enable copy-on-search, save, search selected text, and paste to verify the clipboard. Disable the current site in the popup to leave its gestures to the browser. No account or login is needed. Refresh existing webpages after installing the extension. Browser-protected pages cannot run the content script.

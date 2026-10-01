@@ -1,0 +1,7 @@
+Generated with the built-in image_gen tool.
+
+Use case: logo-brand. Create one finished square browser-extension icon for 'Middle Click to Search'. Minimal, bold flat vector-like symbol: a compact computer mouse silhouette combined elegantly with a magnifying-glass circle, with the middle wheel clearly emphasized. White symbol on a solid near-black rounded-square tile, with genuinely transparent corners outside the tile. One coherent mark, centered, filling most of the square with safe 10 percent inset. Designed to remain immediately legible at 16x16 pixels: extremely simple geometry, thick shapes, very few details. Monochrome black and white. No text, letters, initials, gradients, shadows, 3D, decorations, mockup, surrounding layout, or multiple variants. Crisp professional utilitarian browser-toolbar icon matching a minimal neutral black-and-white settings UI.
+
+transparent_background: true
+
+Source: icon-source.png. Runtime PNGs are resized using ImageMagick.

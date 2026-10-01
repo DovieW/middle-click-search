@@ -1,0 +1,19 @@
+{
+  "name": "middle-click-search",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/unit/*.test.js",
+    "test:browser": "playwright test",
+    "check": "node scripts/check.js",
+    "package": "python3 scripts/package.py",
+    "store-assets": "node scripts/store-assets.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2"
+  }
+}
