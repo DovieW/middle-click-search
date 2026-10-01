@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Middle Click to Search</title><link rel="stylesheet" href="options.css"><script type="module" src="popup.js"></script></head>
+<body class="popup"><main><header><img src="Middle_Click32.png" width="20" height="20" alt=""><h1>Middle Click to Search</h1></header>
+<fieldset id="controls" disabled>
+<label class="setting-row" for="enabled"><span>Enabled</span><input type="checkbox" id="enabled"></label>
+<label class="setting-row" for="siteEnabled"><span id="site">Current site</span><input type="checkbox" id="siteEnabled" aria-label="Enable on this site"></label>
+<p class="hint" id="siteHint" role="status"></p><button type="button" id="refresh" class="secondary" hidden>Refresh page</button>
+<div id="pageError" role="alert" hidden><p id="errorMessage"></p><button type="button" id="dismissError" class="secondary">Dismiss</button></div>
+<label for="enginePreset" class="engine-label">Engine</label><select id="enginePreset"></select>
+<div class="actions"><button type="button" id="options">Settings</button><button type="button" class="secondary" id="useRules" hidden>Reset site</button></div>
+</fieldset><p id="status" role="status" aria-live="polite"></p></main></body></html>

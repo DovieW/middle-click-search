@@ -62,8 +62,37 @@ The next feature should follow the user's workflow, rather than adding several n
 
 Run syntax checks, unit tests, and the real-extension browser suite. Manually verify wheel gestures on target operating systems, native links, restricted-page behavior, screen-reader feedback, upgrades from 0.1.6, and the browser's extension warnings. Review the resulting package before store publication. No store submission or publication is part of this change.
 
-## Verified result
+## Original overhaul verification
 
 On the completed implementation, `npm ci` succeeded with the frozen lockfile, `npm run check` passed, all **48 unit tests** passed, and all **33 real-extension browser tests** passed in Linux Chrome for Testing 145.0.7632.6. No tests were skipped. The settings page was also rendered and visually inspected at desktop size; mobile overflow is covered by the browser suite. CI was added but has not been run on GitHub in this task.
 
 The browser suite covers direct URLs and search-only routing, custom/preset settings, all focus/modifier combinations, origin-relative placement, nested and shadow links, inputs and textareas, password/synthetic-event exclusions, ordinary/cross-origin/srcdoc frames, worker stop/restart, in-flight duplicate suppression, changed selections, oversized-selection recovery, browser API errors, legacy migration, save failure/retry, reset, and mobile layout.
+
+
+## 0.2.0 settings expansion
+
+The options page now uses plain HTML/CSS/JavaScript with compact Search, Tabs, and Sites sections, expandable advanced controls, and inline save feedback. The theme is neutral and decorative/introductory text has been removed. A compact toolbar popup offers global and current-site toggles, engine selection, and the full settings link.
+
+Issue #15 is covered by independent browser/foreground/background link focus controls, including modifier reversal. Issue #12 is covered by exact/wildcard host allow/block lists and explicit current-host exceptions. Issue #8 is covered by opt-in clipboard copying; clipboard errors warn without canceling the tab. Top-level site rules apply to every frame. Defaults preserve browser link behavior, disable copying, and allow all sites.
+
+An offscreen document handles clipboard writes and clears temporary text. Added permissions are activeTab, clipboardWrite, and offscreen; no clipboard-read permission is requested. The minimum Chrome version is 116. Physical mouse/touchpad behavior and macOS/Edge/Arc acceptance remain manual release checks. These additions do not claim to fix every site-specific selection issue.
+
+Expansion verification: syntax and whitespace checks passed, all 58 unit tests passed, and all 48 browser cases passed across the full suite and targeted reruns. Real clipboard writes were checked for foreground/background searches, along with clipboard-failure feedback, cross-origin site policies, native link focus/modifiers, popup controls, and concurrent options/popup edits. Light/dark desktop and mobile options screenshots and the compact popup were visually inspected. Browser testing used the locally cached Chrome for Testing binary through EXTENSION_BROWSER_PATH.
+
+
+## Page readiness and failure feedback
+
+The popup probes the top-level frame for a live, current-version readiness response registered after gesture listeners. It distinguishes global/site disable, known restricted pages, and an inactive page, with a user-triggered refresh action. Missing receivers are simulated in the browser test; refresh recovery uses the actual page and content script. A full extension-reload lifecycle test could not be exercised with the automated browser's worker discovery and remains a manual acceptance check.
+
+Failures and clipboard warnings produce a red per-tab ! badge and a dismissible popup diagnostic. No success badge is used. Successful retry or navigation clears failure state. Diagnostics are held only in browser session storage, not sync storage; selected text and destinations are never added to the diagnostic record. Late responses after navigation do not set a new badge on the next page.
+
+
+## Final reliability review
+
+The final review added guards for source-document disappearance before clipboard work and immediately before tab creation, bounded ordinary-link requests, and fixed clipboard initialization shared by simultaneous requests. Each tab's diagnostic writes are now serialized, with navigation identity tokens preventing late replies from marking a replaced or closed tab.
+
+Content scripts subscribe before their initial settings read and fail closed if that read fails. The popup reports that initialization failure, follows navigation and live preference changes, and clean options forms follow changes from elsewhere. Saving no longer depends on a read after the write has already committed. Native-link overrides run after document-level cancellation handlers, and synchronous messaging errors are caught.
+
+Remaining constraints: source validation and tab creation are separate browser API operations, so navigation can still happen between them. Sync storage has no atomic read-modify-write operation: simultaneous edits to the site-exception map in multiple settings windows can still conflict, although ordinary sequential edits and unrelated preference changes are preserved. Capturing selected text before page handlers run remains necessary on pages that clear their selection on mousedown; site exclusions handle pages with incompatible gestures. Physical mouse/touchpad behavior and a real extension upgrade/reload remain manual release checks.
+
+Review verification: all 66 unit tests passed. All 59 browser cases passed across the full suite and targeted reruns; the new cross-origin popup navigation regression initially exposed omitted tab URLs and passed after the readiness-message fix. Syntax and whitespace checks passed. No checks were skipped. This does not replace the manual release checks above.

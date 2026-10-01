@@ -1,17 +1,34 @@
-(() => {
-  let preventAutoscroll = true;
+(async () => {
+  const { normalizeSettings } = await import(chrome.runtime.getURL('lib/settings.js'));
+  const { siteEnabled } = await import(chrome.runtime.getURL('lib/sites.js'));
+  let preferences;
+  const originUrl = location.ancestorOrigins?.length ? location.ancestorOrigins[location.ancestorOrigins.length - 1] : location.href;
   let consumedMiddleClick = false;
   let pending = false;
   let notice;
 
-  chrome.storage.sync.get({ preventAutoscroll: true }).then(settings => {
-    preventAutoscroll = settings.preventAutoscroll !== false;
-  }).catch(() => {});
+  let stored = {};
+  let startupError = false;
+  let loaded = false;
+  const pendingChanges = {};
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.preventAutoscroll) {
-      preventAutoscroll = changes.preventAutoscroll.newValue !== false;
+    if (area !== 'sync' || startupError) return;
+    if (!loaded) { Object.assign(pendingChanges, changes); return; }
+    for (const [key, change] of Object.entries(changes)) {
+      if (change.newValue === undefined) delete stored[key];
+      else stored[key] = change.newValue;
     }
+    preferences = normalizeSettings(stored);
   });
+
+  try { stored = await chrome.storage.sync.get(null); }
+  catch { stored = { enabled: false }; startupError = true; }
+  for (const [key, change] of Object.entries(pendingChanges)) {
+    if (change.newValue === undefined) delete stored[key];
+    else stored[key] = change.newValue;
+  }
+  preferences = normalizeSettings(stored);
+  loaded = true;
 
   function isLink(event) {
     return event.composedPath().some(node => node instanceof Element &&
@@ -57,7 +74,7 @@
     const root = host.attachShadow({ mode: 'closed' });
     const alert = document.createElement('div');
     alert.setAttribute('role', 'alert');
-    alert.style.cssText = 'font:14px/1.5 system-ui;background:#17232d;color:#fff;padding:14px 18px;border-radius:10px;max-width:320px;box-shadow:0 4px 24px #0004;';
+    alert.style.cssText = 'font:14px/1.5 system-ui;background:#18181b;color:#fff;border-left:3px solid #dc2626;padding:14px 18px;border-radius:10px;max-width:320px;box-shadow:0 4px 24px #0004;';
     alert.textContent = `Middle Click to Search: ${message}`;
     root.append(alert);
     document.documentElement.append(host);
@@ -67,11 +84,11 @@
 
   document.addEventListener('mousedown', event => {
     consumedMiddleClick = false;
-    if (!event.isTrusted || event.defaultPrevented || event.button !== 1 || isLink(event)) return;
+    if (!event.isTrusted || event.defaultPrevented || event.button !== 1 || !siteEnabled(originUrl, preferences) || isLink(event)) return;
     const selection = selectedText();
     if (!selection?.text) return;
-    consumedMiddleClick = preventAutoscroll;
-    if (preventAutoscroll) event.preventDefault();
+    consumedMiddleClick = preferences.preventAutoscroll;
+    if (preferences.preventAutoscroll) event.preventDefault();
     if (pending) return;
     pending = true;
     Promise.resolve().then(() => chrome.runtime.sendMessage({
@@ -81,11 +98,36 @@
     })).then(response => {
       if (!response?.ok) throw new Error(response?.error || 'Could not open a tab.');
       if (response.clearSelection) selection.clear();
+      if (response.warning) showError(response.warning);
     }).catch(error => showError(error.message)).finally(() => { pending = false; });
   }, true);
 
-  document.addEventListener('auxclick', event => {
-    if (event.button === 1 && consumedMiddleClick && !isLink(event)) event.preventDefault();
+  window.addEventListener('auxclick', event => {
+    if (event.button !== 1) return;
+    if (consumedMiddleClick && !isLink(event)) event.preventDefault();
     consumedMiddleClick = false;
-  }, true);
+    if (!event.isTrusted || event.defaultPrevented || !siteEnabled(originUrl, preferences) ||
+        preferences.linkFocus === 'browser') return;
+    const link = event.composedPath().find(node => node instanceof Element && node.matches('a[href], area[href]'));
+    // Downloads and non-web schemes retain native semantics.
+    if (!link || link.hasAttribute('download') || !/^https?:\/\//i.test(link.href)) return;
+    const destination = new URL(link.href);
+    if (destination.username || destination.password) return;
+    event.preventDefault();
+    if (pending) return;
+    pending = true;
+    Promise.resolve().then(() => chrome.runtime.sendMessage({ type: 'open-link', url: link.href,
+      invertFocus: event.ctrlKey || event.metaKey,
+    })).then(response => {
+      if (!response?.ok) throw new Error(response?.error || 'Could not open the link.');
+    }).catch(error => showError(error.message)).finally(() => { pending = false; });
+  });
+  // Register only after gesture handlers are installed: a reply proves readiness.
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request?.type !== 'page-status' || sender.id !== chrome.runtime.id) return;
+    sendResponse({ ready: !startupError, error: startupError ? 'Could not load preferences. Try refreshing.' : '',
+      version: chrome.runtime.getManifest().version, url: location.href });
+  });
+  if (window === top) void chrome.runtime.sendMessage({ type: 'page-ready' }).catch(() => {});
+
 })();

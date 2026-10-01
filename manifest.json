@@ -23,17 +23,39 @@
   "icons": {
     "16": "Middle_Click16.png",
     "48": "Middle_Click48.png",
-    "128": "Middle_Click128.png"
+    "128": "Middle_Click128.png",
+    "32": "Middle_Click32.png"
   },
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
   },
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab",
+    "offscreen",
+    "clipboardWrite"
   ],
-  "minimum_chrome_version": "102",
+  "minimum_chrome_version": "116",
   "action": {
-    "default_title": "Middle Click to Search settings"
-  }
+    "default_title": "Middle Click to Search settings",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "Middle_Click16.png",
+      "32": "Middle_Click32.png",
+      "48": "Middle_Click48.png",
+      "128": "Middle_Click128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/settings.js",
+        "lib/sites.js"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    }
+  ]
 }
