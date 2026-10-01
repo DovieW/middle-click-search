@@ -30,6 +30,13 @@ try {
   await page.screenshot({ path: join(output, 'screenshot-settings.png') });
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.screenshot({ path: join(output, 'screenshot-settings-dark.png') });
+  await page.locator('summary').filter({ hasText: 'More options' }).click();
+  await page.locator('#enginePreset').selectOption('chatgpt');
+  await page.locator('#save').click();
+  await page.waitForFunction(() => document.querySelector('#status').textContent === 'Preferences saved.');
+  await page.screenshot({ path: join(output, 'screenshot-ai-dark.png') });
+  await page.emulateMedia({ colorScheme: 'light' });
+  await page.screenshot({ path: join(output, 'screenshot-ai.png') });
   await page.setViewportSize({ width: 440, height: 280 });
   // A plain HTML promotional layout using the existing icon, without modifying it.
   await page.setContent(`<!doctype html><html><head><style>

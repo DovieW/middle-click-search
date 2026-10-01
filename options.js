@@ -1,10 +1,14 @@
+import { AI_PROVIDERS, aiProvider } from './lib/ai-providers.js';
 import { parseSiteRules } from './lib/sites.js';
-import { DEFAULT_SETTINGS, normalizeSettings, SEARCH_ENGINES, validateSearchEngine } from './lib/settings.js';
+import { DEFAULT_SETTINGS, normalizeSettings, SEARCH_ENGINES, validateSearchEngine, validateAiPrompt, validateCustomAiUrl } from './lib/settings.js';
 
 const form = document.querySelector('#settings');
 const controls = document.querySelector('#controls');
 const engine = document.querySelector('#searchEngine');
 const preset = document.querySelector('#enginePreset');
+const customAiUrl = document.querySelector('#customAiUrl');
+const aiPrompt = document.querySelector('#aiPrompt');
+let destination = 'search';
 const status = document.querySelector('#status');
 const checkboxes = Object.keys(DEFAULT_SETTINGS).filter(key => typeof DEFAULT_SETTINGS[key] === 'boolean');
 let siteOverrides = {};
@@ -15,6 +19,7 @@ const saveButton = document.querySelector('#save');
 const actions = document.querySelector('#settings .actions');
 const rules = document.querySelector('#siteRules');
 const mode = document.querySelector('#siteMode');
+for (const { name, id } of AI_PROVIDERS) preset.insertBefore(new Option(name, id), preset.lastElementChild);
 for (const { name, template } of SEARCH_ENGINES) {
   const option = document.createElement('option');
   option.textContent = name;
@@ -29,7 +34,7 @@ function setStatus(message, error = false) {
 function draftSettings() {
   let siteRules;
   try { siteRules = parseSiteRules(rules.value); } catch { siteRules = rules.value; }
-  const draft = { searchEngine: engine.value.trim(), linkFocus: document.querySelector('#linkFocus').value,
+  const draft = { destination, customAiUrl: destination !== 'custom-ai' && validateCustomAiUrl(customAiUrl.value.trim()) ? baseline?.customAiUrl : customAiUrl.value.trim(), aiPrompt: aiPrompt.value.trim(), searchEngine: Boolean(aiProvider(destination)) && validateSearchEngine(engine.value.trim()) ? baseline?.searchEngine : engine.value.trim(), linkFocus: document.querySelector('#linkFocus').value,
     siteMode: mode.value, siteRules, siteOverrides };
   for (const key of checkboxes) draft[key] = document.getElementById(key).checked;
   return draft;
@@ -50,17 +55,44 @@ function updateDirty(announce = true) {
 function updatePreview() {
   const value = engine.value.trim();
   const error = validateSearchEngine(value);
-  engine.setCustomValidity(error);
+  engine.required = !aiProvider(destination);
+  engine.setCustomValidity(Boolean(aiProvider(destination)) ? '' : error);
   engine.setAttribute('aria-invalid', String(Boolean(error)));
   document.querySelector('#url-error').textContent = error;
   document.querySelector('#preview').textContent = error ? 'Enter a valid search URL to see a preview.' :
     value.replaceAll('%s', encodeURIComponent('curious cats'));
-  preset.value = SEARCH_ENGINES.some(item => item.template === value) ? value : 'custom';
+  preset.value = aiProvider(destination) ? destination : SEARCH_ENGINES.some(item => item.template === value) ? value : 'custom';
   document.querySelector('#customEngine').hidden = preset.value !== 'custom';
+  document.querySelector('#aiOptions').hidden = !aiProvider(destination);
+  document.querySelector('#domainOption').hidden = Boolean(aiProvider(destination));
+  const provider = aiProvider(destination);
+  document.querySelector('#autoSendOption').hidden = provider?.send !== 'experimental';
+  document.querySelector('#aiProviderHint').textContent = provider?.hint || '';
+  document.querySelector('#customAi').hidden = destination !== 'custom-ai';
+  validateCustomAi();
+  validateAiTemplate();
+  return Boolean(aiProvider(destination)) || !error;
+}
+function validateCustomAi() {
+  const error = validateCustomAiUrl(customAiUrl.value.trim());
+  customAiUrl.required = destination === 'custom-ai';
+  customAiUrl.setCustomValidity(destination === 'custom-ai' ? error : '');
+  customAiUrl.setAttribute('aria-invalid', String(Boolean(error)));
+  document.querySelector('#custom-ai-error').textContent = error;
+  return !error;
+}
+function validateAiTemplate() {
+  const error = validateAiPrompt(aiPrompt.value);
+  aiPrompt.setCustomValidity(Boolean(aiProvider(destination)) ? error : '');
+  aiPrompt.setAttribute('aria-invalid', String(Boolean(error)));
+  document.querySelector('#ai-error').textContent = error;
   return !error;
 }
 function render(settings) {
   baseline = settings;
+  destination = settings.destination;
+  aiPrompt.value = settings.aiPrompt;
+  customAiUrl.value = settings.customAiUrl;
   engine.value = settings.searchEngine;
   document.querySelector('#linkFocus').value = settings.linkFocus;
   mode.value = settings.siteMode;
@@ -111,10 +143,19 @@ async function save(settings, reset = false) {
 }
 
 preset.addEventListener('change', () => {
-  if (preset.value !== 'custom') {
+  destination = aiProvider(preset.value) ? preset.value : 'search';
+  if (aiProvider(preset.value)) {
+    updatePreview();
+  } else if (preset.value !== 'custom') {
     engine.value = preset.value;
     updatePreview();
   } else {
+    document.querySelector('#aiOptions').hidden = true;
+    document.querySelector('#domainOption').hidden = false;
+    aiPrompt.setCustomValidity('');
+    validateCustomAi();
+    engine.required = true;
+    engine.setCustomValidity(validateSearchEngine(engine.value.trim()));
     document.querySelector('#customEngine').hidden = false;
     engine.focus();
     engine.select();
@@ -123,6 +164,8 @@ preset.addEventListener('change', () => {
 });
 form.addEventListener('input', event => {
   if (event.target === engine) updatePreview();
+  if (event.target === customAiUrl) validateCustomAi();
+  if (event.target === aiPrompt || event.target.id === 'aiIncludeUrl') validateAiTemplate();
   if (event.target === rules || event.target === mode) validateRules();
   updateDirty();
 });
@@ -130,10 +173,10 @@ form.addEventListener('submit', async event => {
   event.preventDefault();
   if (!dirty || saving) return;
   if (!updatePreview()) { engine.reportValidity(); return; }
+  if (destination === 'custom-ai' && !validateCustomAi()) { customAiUrl.reportValidity(); return; }
+  if (Boolean(aiProvider(destination)) && !validateAiTemplate()) { aiPrompt.reportValidity(); return; }
   if (!validateRules()) { rules.reportValidity(); return; }
-  const settings = { searchEngine: engine.value.trim(), linkFocus: document.querySelector('#linkFocus').value,
-    siteMode: mode.value, siteRules: parseSiteRules(rules.value), siteOverrides };
-  for (const key of checkboxes) settings[key] = document.getElementById(key).checked;
+  const settings = draftSettings();
   await save(settings);
 });
 document.querySelector('#reset').addEventListener('click', async () => {

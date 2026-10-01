@@ -1,12 +1,12 @@
-0.2.0 Chrome Web Store update
+0.2.1 Chrome Web Store update
 
-1. Package: upload middle-click-search-0.2.0.zip to the existing item.
-2. Store listing: replace the description with description.txt; replace the store icon with store-icon-128.png. Upload screenshot-settings.png and screenshot-settings-dark.png (1280x800). Replace the small promo tile with promo-small-440x280.png if desired.
-3. Privacy: review/update the permission explanations below to match this version.
+1. Package: upload middle-click-search-0.2.1.zip to the existing item.
+2. Store listing: replace the description with description.txt; replace the store icon with store-icon-128.png. Upload screenshot-settings.png, screenshot-settings-dark.png, screenshot-ai.png, and screenshot-ai-dark.png (1280x800). Replace the small promo tile with promo-small-440x280.png if desired.
+3. Privacy: permissions are unchanged from 0.2.0. Keep the already accepted storage and host-access justifications. Update the single-purpose/data-practices description for optional AI destinations if needed.
 4. Save the draft, then submit for review. The GitHub release does not update the Web Store automatically.
 
 Single purpose
-Search selected webpage text or open selected web addresses with a middle-click, with configurable tab focus and site controls.
+Search or discuss selected webpage text using the configured search engine or AI website with a middle-click, or open selected web addresses, with configurable tab focus and site controls.
 
 Permission explanations
 storage: Save and sync search engine, tab behavior, and site preferences. Keep short error diagnostics in browser session storage.
@@ -19,10 +19,10 @@ Remote code
 No remote code is executed. All JavaScript is bundled in the extension. Search destinations are URLs opened in new tabs, not downloaded code.
 
 Data practices
-The extension does not collect data for the developer, sell user data, run analytics, or use advertising. Preferences sync through Chrome's own storage service. Selected text is sent to the configured search engine only when the user searches. Opt-in copying writes selected text to the user's clipboard. Short failure diagnostics remain in session storage and are cleared on navigation, dismissal, or successful retry. The developer receives no selections or search history.
+The extension does not collect data for the developer, sell user data, run analytics, or use advertising. Preferences sync through Chrome's own storage service. A user-triggered gesture sends selected text to the configured search or AI website in a navigation URL. AI destinations also receive the configured prompt and optional source page URL; page URL inclusion can be turned off. Gemini draft filling and ChatGPT/Gemini auto-send only operate in extension-authorized tabs. Auto-send is experimental and off by default. Short-lived prompt fingerprints and tab authorization metadata are kept in session storage, without storing prompt text there. Opt-in copying writes selected text to the user's clipboard. Short failure diagnostics remain in session storage and are cleared on navigation, dismissal, or successful retry. The developer receives no selections or search history.
 
 Privacy policy (if a URL is requested)
-https://github.com/DovieW/middle-click-search/blob/v0.2.0/PRIVACY.md
+https://github.com/DovieW/middle-click-search/blob/v0.2.1/PRIVACY.md
 
 Reviewer test instructions
-Use an ordinary HTTP(S) webpage. Select text and press the mouse wheel; a search tab should open beside the source tab. Ctrl/Command reverses tab focus. Open the toolbar popup for quick controls, then Settings. Select a link-focus mode, save changes, and middle-click a normal HTTP(S) link. Optionally enable copy-on-search, save, search selected text, and paste to verify the clipboard. Disable the current site in the popup to leave its gestures to the browser. No account or login is needed. Refresh existing webpages after installing the extension. Browser-protected pages cannot run the content script.
+Use an ordinary HTTP(S) webpage. Select text and press the mouse wheel; a search tab should open beside the source tab. Ctrl/Command reverses tab focus. Open the toolbar popup for quick controls, then Settings. Select a link-focus mode, save changes, and middle-click a normal HTTP(S) link. Optionally enable copy-on-search, save, search selected text, and paste to verify the clipboard. Disable the current site in the popup to leave its gestures to the browser. Basic search needs no account. AI websites may require an account. For AI testing, choose ChatGPT, Gemini, Claude, Perplexity, or Custom AI under Search engine / AI; save and middle-click a selection. The AI prompt uses {text} and optional {url}. Custom AI URL templates use %s for the full prompt. Claude requires manual sending; Perplexity submits via its URL. Optional ChatGPT/Gemini auto-send is labeled experimental. Refresh existing webpages after installing the extension. Browser-protected pages cannot run the content script.

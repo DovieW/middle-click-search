@@ -15,9 +15,48 @@ There is no build step. Changes to background/content scripts require reloading 
 
 Choose Google, DuckDuckGo, Bing, Brave, or a custom HTTP(S) search URL containing `%s`. The preview shows how selected text will be encoded. Click **Save changes** to apply edits. The save bar highlights unsaved changes; Save is disabled when nothing has changed.
 
-Settings are grouped into Search, Tabs, and Sites. Custom URLs, previews, and site overrides appear only when relevant; additional mouse options are expandable.
+Settings are grouped into Search / AI, Tabs, and Sites. Custom URLs, previews, and site overrides appear only when relevant; additional mouse options are expandable.
 
 You can switch to new tabs or keep them in the background, always search even if text resembles a URL, retain the highlight, and control wheel scrolling during a search. Results open immediately after the originating tab in the same window. Existing search-engine and focus preferences carry forward; the old domain-checking preference migrates when you open settings.
+
+### AI assistants
+
+Choose **ChatGPT**, **Gemini**, **Claude**, **Perplexity**, or **Custom AI** under **Search engine / AI** in settings or the popup. Selected text becomes AI context, including text that looks like a web address. The **AI prompt** is an editable template: place `{text}` and `{url}` wherever you want the selection and page URL. `{text}` is required; `{url}` is optional. **Include page URL** is on by default and can be turned off. The source URL comes from the frame containing the selection, falling back to the page URL for related blank frames. Embedded URL credentials are removed.
+
+The default prompt is:
+
+```text
+Explain and let's discuss this.
+
+Context:
+{text}
+From Page: {url}
+```
+
+Turn off **Include page URL** to leave `{url}` blank; a URL-only line is removed. Previously saved instruction-only prompts are converted to templates automatically. Click **Save changes** to apply edits. Switching back to a search engine keeps your AI preferences. Ordinary links keep their separate focus behavior; copy-on-search copies the selection itself.
+
+All AI destinations share the same template and URL-inclusion preference. Provider behavior is explicit:
+
+| Provider | Handoff | Submission |
+| --- | --- | --- |
+| ChatGPT | `https://chatgpt.com/?q=…` fills a draft | Optional **Send automatically (experimental)** |
+| Gemini | `https://gemini.google.com/app?q=…`, with an authorized draft-filling fallback | Optional **Send automatically (experimental)** |
+| Claude | `https://claude.ai/new?q=…` fills a draft | Review and send in Claude |
+| Perplexity | `https://www.perplexity.ai/search?q=…` | The website sends immediately; the settings page states this |
+
+The Gemini URL matches [Chromium's built-in Gemini shortcut](https://github.com/chromium/chromium/blob/main/components/search_engines/template_url_starter_pack_data.cc), described in [Google's help](https://support.google.com/gemini/answer/14886647). During a live check this account's editor ignored the query, so the extension fills an empty draft as a fallback. It only fills tabs it opened with a short-lived authorization, never arbitrary Gemini links or existing user drafts. Draft filling is also labeled experimental. Perplexity's native URL submission was verified live; The user verified Gemini and Claude on October 1, 2026. Claude's `q` prefill behavior is described in the original [Oasis research](https://pages.oasis.security/rs/106-PZV-596/images/claudyday-vulnerability.pdf?version=0). These are website integrations rather than provider API contracts.
+
+**Send automatically (experimental)** is off by default. When enabled for ChatGPT or Gemini, the extension waits for the matching prompt and enabled send button and makes one authorized click. Editing or sending manually cancels automation. Manually opened tabs never trigger extension submission or draft filling. A failure badge appears on the original page if the handoff cannot be confirmed within 45 seconds; submission is never retried. Prompt fingerprints and tab authorization metadata are kept briefly in session storage; full prompt text is not stored there.
+
+The live ChatGPT and Gemini editor markup was inspected. Local fixtures cover delayed readiness, draft filling, exactly-once sending, existing drafts, and cancellation. The user verified Gemini and Claude live; ChatGPT automatic sending remains experimental and is tested against matching composer fixtures. The extension does not use provider APIs, require API keys, or select a model. The provider controls sign-in and response generation. Very long links are rejected (8,000-character extension limit) rather than truncating the prompt or context.
+
+Selecting an AI provider sends the instruction, highlighted text, and optional source URL to that provider in the navigation URL. Its privacy policy applies. Search engines remain the default for existing installations. No extension permissions are added.
+
+### Custom destinations
+
+**Custom search** uses `%s` for the encoded selection. **Custom AI** has a separate **AI URL** using `%s` for the entire encoded prompt after `{text}` and `{url}` expansion, for example `https://example.com/chat?prompt=%s`. Both support HTTP(S) URLs with a fixed host; credentials, unsafe schemes, and placeholders in the host are rejected. Each `%s` is replaced, including placeholders in the path or fragment. Custom AI must be configured before use and fails safely if its URL is missing or invalid.
+
+Custom AI shares the prompt template and URL-inclusion preference with built-in providers. Switching destinations preserves its saved URL and the search URL. It opens a website URL, not an authenticated API request; prompt handling and submission depend on that website. Extension auto-send and draft filling are not applied to arbitrary custom destinations.
 
 ### Webpage links
 
@@ -74,4 +113,4 @@ A red **!** badge indicates a failed search/link operation or clipboard write, o
 
 Run `npm run package` to create a reproducible runtime-only Chrome Web Store ZIP under `release-files/<version>/`. Run `npm run store-assets` to load that ZIP in a temporary browser profile and capture store screenshots, a promotional tile, and the current icon. The browser override `EXTENSION_BROWSER_PATH` also applies here. Packaging requires Python 3; asset capture also requires `unzip` and Playwright's Chrome for Testing.
 
-See [0.2.0 release notes](docs/RELEASE-0.2.0.md), [store dashboard notes](docs/store/dashboard-notes.txt), and [privacy details](PRIVACY.md). The extension package contains no development dependencies, test fixtures, original image sources, or store marketing files.
+See [0.2.1 release notes](docs/RELEASE-0.2.1.md), [store dashboard notes](docs/store/dashboard-notes.txt), and [privacy details](PRIVACY.md). The extension package contains no development dependencies, test fixtures, original image sources, or store marketing files.

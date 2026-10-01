@@ -1,3 +1,4 @@
+import { AI_PROVIDERS, aiProvider } from './lib/ai-providers.js';
 import { getPageStatus } from './lib/page-status.js';
 import { getTabError } from './lib/errors.js';
 import { normalizeSettings, SEARCH_ENGINES } from './lib/settings.js';
@@ -17,10 +18,11 @@ function render() {
   for (const { name, template } of SEARCH_ENGINES) {
     engine.add(new Option(name, template));
   }
+  for (const { name, id } of AI_PROVIDERS) engine.add(new Option(name, id));
   if (!SEARCH_ENGINES.some(item => item.template === settings.searchEngine)) {
-    engine.add(new Option('Custom', settings.searchEngine));
+    engine.add(new Option('Custom search', settings.searchEngine));
   }
-  engine.value = settings.searchEngine;
+  engine.value = aiProvider(settings.destination) ? settings.destination : settings.searchEngine;
 }
 async function save(changes) {
   controls.disabled = true;
@@ -52,7 +54,7 @@ document.querySelector('#useRules').addEventListener('click', async () => {
     await save({ siteOverrides: overrides });
   } catch (error) { status.textContent = error.message; status.dataset.error = 'true'; controls.disabled = false; render(); }
 });
-engine.addEventListener('change', event => save({ searchEngine: event.target.value }));
+engine.addEventListener('change', event => save(aiProvider(event.target.value) ? { destination: event.target.value } : { destination: 'search', searchEngine: event.target.value }));
 document.querySelector('#options').addEventListener('click', () => chrome.runtime.openOptionsPage());
 try {
   const [stored, tabs] = await Promise.all([chrome.storage.sync.get(null), chrome.tabs.query({ active: true, currentWindow: true })]);

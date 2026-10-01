@@ -1,8 +1,8 @@
 {
   "update_url": "https://clients2.google.com/service/update2/crx",
   "name": "Middle Click to Search",
-  "description": "Middle click highlighted text to do a search with that text in a new tab.",
-  "version": "0.2.0",
+  "description": "Middle click highlighted text to search or ask AI in a new tab.",
+  "version": "0.2.1",
   "manifest_version": 3,
   "background": {
     "service_worker": "background.js",
@@ -18,6 +18,16 @@
       ],
       "all_frames": true,
       "match_about_blank": true
+    },
+    {
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "ai-content.js"
+      ],
+      "run_at": "document_start"
     }
   ],
   "icons": {
@@ -51,6 +61,7 @@
     {
       "resources": [
         "lib/settings.js",
+        "lib/ai-providers.js",
         "lib/sites.js"
       ],
       "matches": [

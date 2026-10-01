@@ -1,6 +1,20 @@
 (async () => {
-  const { normalizeSettings } = await import(chrome.runtime.getURL('lib/settings.js'));
-  const { siteEnabled } = await import(chrome.runtime.getURL('lib/sites.js'));
+  let normalizeSettings, siteEnabled;
+  try {
+    ({ normalizeSettings } = await import(chrome.runtime.getURL('lib/settings.js')));
+    ({ siteEnabled } = await import(chrome.runtime.getURL('lib/sites.js')));
+  } catch {
+    // A missing dependency or extension reload must not leave an unhandled rejection.
+    try {
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        if (request?.type !== 'page-status' || sender.id !== chrome.runtime.id) return;
+        sendResponse({ ready: false, error: 'Could not load extension files. Reload the extension and refresh this page.',
+          version: chrome.runtime.getManifest().version, url: location.href });
+      });
+      if (window === top) void chrome.runtime.sendMessage({ type: 'page-startup-error' }).catch(() => {});
+    } catch { /* Chrome has already invalidated this old extension context. */ }
+    return;
+  }
   let preferences;
   const originUrl = location.ancestorOrigins?.length ? location.ancestorOrigins[location.ancestorOrigins.length - 1] : location.href;
   let consumedMiddleClick = false;

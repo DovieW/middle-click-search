@@ -91,3 +91,21 @@ test('oversized link requests fail before browser work', async () => {
   await assert.rejects(openSelection(api, { type: 'open-link', url: 'https://example.com/' + 'x'.repeat(20001) }, sender), /too long/);
   assert.equal(api.created.length, 0);
 });
+
+test('AI context uses the selection frame URL, while site rules use the top-level URL', async () => {
+  const api = fakeApi({ destination: 'chatgpt', siteMode: 'allow', siteRules: ['top.test'] });
+  const source = { ...sender, tab: { ...sender.tab, url: 'https://top.test/article' }, url: 'https://frame.test/selection?part=1' };
+  await openSelection(api, { text: 'hello' }, source);
+  assert.equal(new URL(api.created[0].url).searchParams.get('q'), "Explain and let's discuss this.\n\nContext:\nhello\nFrom Page: https://frame.test/selection?part=1");
+});
+test('AI context falls back to the tab URL for related about:blank documents', async () => {
+  const api = fakeApi({ destination: 'chatgpt' });
+  await openSelection(api, { text: 'hello' }, { ...sender, tab: { ...sender.tab, url: 'https://top.test/article' }, url: 'about:blank' });
+  assert.match(new URL(api.created[0].url).searchParams.get('q'), /https:\/\/top.test\/article$/);
+});
+test('oversized AI handoffs fail before changing the clipboard or opening a tab', async () => {
+  const api = fakeApi({ destination: 'chatgpt', copyOnSearch: true });
+  let copied = false;
+  await assert.rejects(openSelection(api, { text: '💡'.repeat(2000) }, sender, async () => { copied = true; }), /too long/);
+  assert.equal(copied, false); assert.equal(api.created.length, 0);
+});

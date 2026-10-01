@@ -13,7 +13,7 @@ output.mkdir(parents=True, exist_ok=True)
 files = {
     'manifest.json', 'LICENSE', 'background.js', 'get_text.js',
     'options.html', 'options.css', 'options.js', 'popup.html', 'popup.js',
-    'clipboard.html', 'clipboard.js', *manifest['icons'].values(),
+    'clipboard.html', 'clipboard.js', 'ai-content.js', *manifest['icons'].values(),
     *(str(path.relative_to(root)) for path in (root / 'lib').glob('*.js')),
 }
 references = {

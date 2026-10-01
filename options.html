@@ -13,18 +13,29 @@
       <fieldset id="controls" disabled>
         <label class="setting-row" for="enabled"><span>Enabled</span><input id="enabled" type="checkbox"></label>
         <section aria-labelledby="search-title">
-          <h2 id="search-title">Search</h2>
-          <label class="field-row" for="enginePreset"><span>Engine</span><select id="enginePreset"><option value="custom">Custom</option></select></label>
+          <h2 id="search-title">Search / AI</h2>
+          <label class="field-row" for="enginePreset"><span>Search engine / AI</span><select id="enginePreset"><option value="custom">Custom search</option></select></label>
           <div id="customEngine">
             <label for="searchEngine" class="sr-only">Search URL</label><input id="searchEngine" type="text" required spellcheck="false" autocomplete="off" aria-describedby="url-help url-error" placeholder="https://example.com/search?q=%s">
             <p id="url-help" class="hint"><code>%s</code> = selected text</p><p id="url-error" class="error" aria-live="polite"></p>
             <details class="preview"><summary>Preview</summary><output id="preview"></output></details>
           </div>
-          <label class="setting-row" for="disableDomainCheck"><span>Always search <span class="hint inline">including URLs</span></span><input id="disableDomainCheck" type="checkbox"></label>
+          <div id="aiOptions" hidden>
+            <div id="customAi" hidden>
+              <label for="customAiUrl" class="hint">AI URL</label><input id="customAiUrl" type="text" spellcheck="false" autocomplete="off" aria-describedby="custom-ai-help custom-ai-error" placeholder="https://example.com/chat?prompt=%s">
+              <p id="custom-ai-help" class="hint"><code>%s</code> = full AI prompt</p><p id="custom-ai-error" class="error" aria-live="polite"></p>
+            </div>
+            <label for="aiPrompt" class="hint">AI prompt</label><textarea id="aiPrompt" rows="6" spellcheck="true" aria-describedby="ai-help ai-error"></textarea>
+            <p id="ai-help" class="hint"><code>{text}</code> = selection · <code>{url}</code> = page URL</p><p id="ai-error" class="error" aria-live="polite"></p>
+            <label id="autoSendOption" class="setting-row" for="aiAutoSend"><span>Send automatically <small class="hint">(experimental)</small></span><input id="aiAutoSend" type="checkbox"></label>
+            <p id="aiProviderHint" class="hint"></p>
+            <label class="setting-row" for="aiIncludeUrl"><span>Include page URL</span><input id="aiIncludeUrl" type="checkbox"></label>
+          </div>
+          <label id="domainOption" class="setting-row" for="disableDomainCheck"><span>Always search <span class="hint inline">including URLs</span></span><input id="disableDomainCheck" type="checkbox"></label>
         </section>
         <section aria-labelledby="behavior-title">
           <h2 id="behavior-title">Tabs</h2>
-          <label class="setting-row" for="newTabActive"><span>Switch to search results</span><input id="newTabActive" type="checkbox"></label>
+          <label class="setting-row" for="newTabActive"><span>Switch to results</span><input id="newTabActive" type="checkbox"></label>
           <label class="field-row" for="linkFocus"><span>Middle-clicked links</span><select id="linkFocus"><option value="browser">Browser default</option><option value="foreground">Foreground</option><option value="background">Background</option></select></label>
           <p class="hint">Ctrl / ⌘ reverses tab focus.</p>
           <details><summary>More options</summary>

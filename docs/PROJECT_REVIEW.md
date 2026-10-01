@@ -96,3 +96,42 @@ Content scripts subscribe before their initial settings read and fail closed if 
 Remaining constraints: source validation and tab creation are separate browser API operations, so navigation can still happen between them. Sync storage has no atomic read-modify-write operation: simultaneous edits to the site-exception map in multiple settings windows can still conflict, although ordinary sequential edits and unrelated preference changes are preserved. Capturing selected text before page handlers run remains necessary on pages that clear their selection on mousedown; site exclusions handle pages with incompatible gestures. Physical mouse/touchpad behavior and a real extension upgrade/reload remain manual release checks.
 
 Review verification: all 66 unit tests passed. All 59 browser cases passed across the full suite and targeted reruns; the new cross-origin popup navigation regression initially exposed omitted tab URLs and passed after the readiness-message fix. Syntax and whitespace checks passed. No checks were skipped. This does not replace the manual release checks above.
+
+
+## ChatGPT context destination
+
+The shared **Search engine / AI** picker now supports ChatGPT in both settings and the popup. Search-engine defaults and stored custom URLs are preserved. AI mode expands a configurable template with `{text}` and optional `{url}` placeholders, allowing context and URL placement anywhere in the prompt. Earlier instruction-only preferences convert to equivalent templates. URL inclusion defaults to on; normal middle-clicked links continue using their separate focus settings. The options page validates the required `{text}` placeholder and shows the editable template directly, without a prompt preview. No permissions or API credentials are added.
+
+AI prompt instructions are bounded for sync storage, and encoded handoff URLs have an 8,000-character extension limit. Oversized context produces an error before copying or opening a tab; content is never silently truncated. Only HTTP(S) source URLs are included, with embedded credentials removed. Privacy documentation describes sending the selection and optional URL to the chosen AI provider.
+
+The implementation opens `https://chatgpt.com/?q=<encoded prompt>`. Official documentation searched did not establish a supported web-prompt link contract, and live automated verification encountered ChatGPT's browser-verification challenge. This is a website integration whose final prompt handling still needs signed-in browser acceptance. Automated integration tests intercept the ChatGPT destination to verify the real extension's generated prompt, persistence, live URL opt-out, normal-link behavior, and clipboard semantics without submitting test content to the provider.
+
+
+**Send automatically** is opt-in. The ignored `submit=true` parameter has been removed. Auto-send tabs carry an unguessable marker; the worker registers a short-lived session ticket with a prompt fingerprint and source-document metadata. A ChatGPT-only content script waits for the matching composer and enabled send button, claims authorization once, clicks once, and checks for composer clearing or generation state. Manual edits or submission cancel automation. No ticket means no sending. Expired tickets, different tabs, origins, frames, nonces, and prompt fingerprints cannot claim authorization. Failure to confirm submission produces a diagnostic on the still-live source document; there is no automatic retry.
+
+The actual signed-in ChatGPT page was inspected read-only: its editor uses `role="textbox"`, `aria-label="Ask ChatGPT"`, and additional paragraph line breaks; its button uses `aria-label="Send"` inside `form[data-chatgpt-composer]`. These selectors and paragraph normalization are supported alongside the older layout. Integration fixtures exercise both layouts. Full live submission after extension reload remains a manual acceptance check.
+
+The default template now ends with `From Page: {url}`. Existing exact defaults and legacy instruction-only preferences upgrade to this format; other custom templates are preserved. When URL inclusion is off, the entire default page line is omitted.
+
+
+## Additional AI providers and experimental behavior
+
+The picker supports ChatGPT, Gemini, Claude, and Perplexity through one provider registry and shared prompt builder. The existing ChatGPT URL handoff is retained. Experimental auto-send is off by default and only shown for ChatGPT and Gemini. Claude uses native draft prefilling and manual submission; Perplexity uses native URL submission, with that behavior stated in settings.
+
+Chromium's Gemini shortcut uses `/app?q=…`, but that URL left the signed-in editor empty in a live check. Gemini therefore has a scoped draft-filling fallback in the same small content-script controller used for ChatGPT submission. It needs a matching provider, tab, nonce, and prompt fingerprint before filling an empty editor. Preparation and submission are authorized separately. Existing drafts, edits, and unregistered URLs are preserved. No new permissions or dependencies are introduced. Real Gemini submission and signed-in Claude prefilling remain manual acceptance checks.
+
+Provider verification: 88 unit tests passed; the full 78-case browser suite and the additional clipboard-warning regression passed (79 distinct browser cases). Syntax/whitespace checks and runtime packaging in an isolated temporary directory passed. The provider registry is included in web-accessible resources so content-script settings imports work. Gemini multiline filling uses text-only paragraphs rather than HTML parsing. Successful handoffs preserve earlier clipboard warnings and later page errors. Signed-in live Gemini sending and Claude prefilling remain unverified; no release was published during this change.
+
+Content-script startup now catches module import failures before registering gestures. An unavailable dependency reports a refreshable popup status and a source-tab failure badge; invalidated extension contexts exit quietly. The static check follows content-script module imports and rejects any transitive dependency missing from web-accessible resources. A browser regression with an intentionally blocked provider module reproduced the settings import failure and verified no unhandled rejection, no gestures, and the popup/badge diagnostic. All 88 unit tests and the eight startup/status browser tests passed; the static guard also rejected a deliberately incomplete manifest in an isolated copy.
+
+
+## Custom AI destination
+
+The picker distinguishes Custom search from Custom AI. Custom AI stores a separate validated URL template using `%s` for the complete encoded prompt, while Custom search continues using the encoded selection. Custom AI preserves fixed-host HTTP(S) validation, required placeholders, credential rejection, prompt length limits, and literal context tokens. Missing or invalid custom URLs fail before clipboard work or opening a tab. Arbitrary custom sites receive no extension DOM automation; the website controls submission. The options page only validates the URL when Custom AI is selected, so an unfinished draft cannot block other destinations.
+
+Custom-destination verification: 90 unit tests, ten options/custom-AI browser cases, and nineteen existing AI browser cases passed. The unchanged 45-second timeout case was excluded from this targeted AI rerun; it passed in the previous full suite. The two custom-AI cases also passed after adding preservation of a previously saved URL when an invalid draft is abandoned. Syntax and manifest dependency checks passed. Custom search and custom AI remained independent across popup switching and reloads; both final destinations were exercised against a local HTTP fixture.
+
+
+## 0.2.1 release acceptance
+
+The user verified Gemini and Claude live on October 1, 2026 and selected 0.2.1 as the release following 0.2.0. This supersedes the earlier Gemini/Claude acceptance gaps recorded above. Experimental labels and opt-in automatic sending remain. Final readiness checks passed all 90 unit tests and all 82 browser tests; isolated runtime packaging also passed. No new permissions or dependencies are introduced. The release includes updated store copy and AI settings screenshots and is published from master.

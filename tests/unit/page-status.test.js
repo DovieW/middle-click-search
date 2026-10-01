@@ -22,7 +22,7 @@ test('off, excluded and restricted pages are distinguished without messaging', a
 });
 
 test('preference initialization failure is visible in page readiness', async () => {
-  const result = await getPageStatus(api({ ready: false, error: 'Storage failed' }), tab, normalizeSettings());
+  const result = await getPageStatus(api({ ready: false, error: 'Could not load preferences. Try refreshing.' }), tab, normalizeSettings());
   assert.equal(result.refresh, true);
   assert.match(result.text, /Could not load preferences/);
 });

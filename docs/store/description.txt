@@ -1,9 +1,11 @@
-Select text. Middle-click. Search.
+Select text. Middle-click. Search or ask AI.
 
-Middle Click to Search opens selected text in a new tab using your preferred search engine. Select a web address to open it directly.
+Middle Click to Search opens selected text in a new tab using your preferred search engine or AI assistant. Select a web address to open it directly.
 
 Make it work your way:
-• Choose Google, DuckDuckGo, Bing, Brave, or a custom search URL.
+• Choose Google, DuckDuckGo, Bing, Brave, or Custom search.
+• Ask ChatGPT, Gemini, Claude, Perplexity, or a Custom AI website.
+• Customize your AI prompt using {text} and {url}, with optional page URL inclusion.
 • Open searches in the foreground or background.
 • Choose foreground or background behavior for ordinary middle-clicked links.
 • Hold Ctrl or Command to reverse tab focus.
@@ -13,7 +15,9 @@ Make it work your way:
 
 The toolbar popup provides quick controls and page status. A red ! badge indicates a failed action; open the popup for details. The settings page highlights unsaved changes.
 
-Preferences sync through Chrome. There are no ads, analytics, accounts, or extension-operated servers. Search text goes to your chosen search engine when you open a search.
+AI destinations share your prompt template. ChatGPT and Gemini offer optional experimental auto-send, off by default. Claude opens a draft for manual sending. Perplexity sends when its search URL opens; custom websites control their own prompt handling.
+
+Preferences sync through Chrome. There are no ads, analytics, accounts, or extension-operated servers. Selected text, your AI prompt, and the optional page URL go to your chosen destination when its tab opens. AI providers may require sign-in; no API key is needed.
 
 Refresh existing webpages after installing or updating. Browser settings pages, the Chrome Web Store, and other protected pages do not support the gesture. Requires Chrome 116 or newer. A middle-click means pressing the mouse wheel.
 

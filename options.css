@@ -56,3 +56,5 @@ body.popup { width:300px; }
 #settings .actions[data-dirty=true] { border-top-color:var(--text); }
 #settings .actions[data-dirty=true] #status:not([data-error=true]) { color:var(--text); font-weight:650; }
 #settings .actions[data-dirty=true] #status::before { content:'●'; margin-right:7px; }
+
+#aiPrompt { font:inherit; margin-top:5px; }
