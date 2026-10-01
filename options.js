@@ -1,46 +1,92 @@
-document.addEventListener('DOMContentLoaded', function() {
-  let disableDomainCheck = document.getElementById('disableDomainCheck');
+import { DEFAULT_SETTINGS, normalizeSettings, SEARCH_ENGINES, validateSearchEngine } from './lib/settings.js';
 
-  // Load disableDomainCheck from localStorage
-  if (window.localStorage) {
-    disableDomainCheck.checked = window.localStorage.getItem('disableDomainCheck') === 'true';
+const form = document.querySelector('#settings');
+const controls = document.querySelector('#controls');
+const engine = document.querySelector('#searchEngine');
+const preset = document.querySelector('#enginePreset');
+const status = document.querySelector('#status');
+const checkboxes = Object.keys(DEFAULT_SETTINGS).filter(key => key !== 'searchEngine');
+for (const { name, template } of SEARCH_ENGINES) {
+  const option = document.createElement('option');
+  option.textContent = name;
+  option.value = template;
+  preset.insertBefore(option, preset.lastElementChild);
+}
+
+function setStatus(message, error = false) {
+  status.textContent = message;
+  status.dataset.error = String(error);
+}
+function updatePreview() {
+  const value = engine.value.trim();
+  const error = validateSearchEngine(value);
+  engine.setCustomValidity(error);
+  engine.setAttribute('aria-invalid', String(Boolean(error)));
+  document.querySelector('#url-error').textContent = error;
+  document.querySelector('#preview').textContent = error ? 'Enter a valid search URL to see a preview.' :
+    value.replaceAll('%s', encodeURIComponent('curious cats'));
+  preset.value = SEARCH_ENGINES.some(item => item.template === value) ? value : 'custom';
+  return !error;
+}
+function render(settings) {
+  engine.value = settings.searchEngine;
+  for (const key of checkboxes) document.getElementById(key).checked = settings[key];
+  updatePreview();
+}
+async function save(settings) {
+  controls.disabled = true;
+  try {
+    await chrome.storage.sync.set(settings);
+    setStatus('Preferences saved.');
+  } catch (error) {
+    setStatus(`Could not save: ${error.message}`, true);
+  } finally {
+    controls.disabled = false;
   }
+}
 
-  disableDomainCheck.addEventListener('change', function() {
-    if (window.localStorage) {
-      window.localStorage.setItem('disableDomainCheck', this.checked);
-    }
-  });
-  let newTabActive = document.getElementById('newTabActive');
-  // let preventAutoscroll = document.getElementById('preventAutoscroll');
-
-  chrome.storage.sync.get({newTabActive: true, preventAutoscroll: false}, function(data) {
-    newTabActive.checked = data.newTabActive;
-    // preventAutoscroll.checked = data.preventAutoscroll;
-    // preventAutoscroll.disabled = data.newTabActive;
-  });
-
-  newTabActive.addEventListener('change', function() {
-    chrome.storage.sync.set({newTabActive: this.checked});
-    // preventAutoscroll.disabled = this.checked;
-    // if (this.checked) {
-    //   preventAutoscroll.checked = false;
-    //   chrome.storage.sync.set({preventAutoscroll: false});
-    // }
-  });
-
-  let searchEngine = document.getElementById('searchEngine');
-  chrome.storage.sync.get({searchEngine: 'https://www.google.com/search?q=%s'}, function(data) {
-    if (data.searchEngine === "") {
-      data.searchEngine = 'https://www.google.com/search?q=%s';
-    }
-    searchEngine.value = data.searchEngine;
-  });
-  searchEngine.addEventListener('change', function() {
-    chrome.storage.sync.set({searchEngine: this.value});
-  });
-
-  // preventAutoscroll.addEventListener('change', function() {
-  //   chrome.storage.sync.set({preventAutoscroll: this.checked});
-  // });
+preset.addEventListener('change', () => {
+  if (preset.value !== 'custom') {
+    engine.value = preset.value;
+    updatePreview();
+  } else {
+    engine.focus();
+    engine.select();
+  }
+  setStatus('Unsaved changes.');
 });
+form.addEventListener('input', event => {
+  if (event.target === engine) updatePreview();
+  setStatus('Unsaved changes.');
+});
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  if (!updatePreview()) { engine.reportValidity(); return; }
+  const settings = { searchEngine: engine.value.trim() };
+  for (const key of checkboxes) settings[key] = document.getElementById(key).checked;
+  await save(settings);
+});
+document.querySelector('#reset').addEventListener('click', async () => {
+  await save({ ...DEFAULT_SETTINGS });
+  if (status.dataset.error !== 'true') render(DEFAULT_SETTINGS);
+});
+
+async function load() {
+  try {
+    const stored = await chrome.storage.sync.get(null);
+    // Older versions kept this one preference in options-page localStorage.
+    if (stored.disableDomainCheck === undefined) {
+      const legacy = localStorage.getItem('disableDomainCheck');
+      if (legacy !== null) {
+        stored.disableDomainCheck = legacy === 'true';
+        await chrome.storage.sync.set({ disableDomainCheck: stored.disableDomainCheck });
+        localStorage.removeItem('disableDomainCheck');
+      }
+    }
+    render(normalizeSettings(stored));
+    controls.disabled = false;
+  } catch (error) {
+    setStatus(`Could not load preferences: ${error.message}. Reload to retry.`, true);
+  }
+}
+load();

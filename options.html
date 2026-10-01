@@ -1,21 +1,44 @@
-<!DOCTYPE html>
-<html>
-<body style="height: 70px;">
-  <input type="checkbox" id="newTabActive">
-  <label for="newTabActive">Navigate to new tab (reversed by Ctrl key)</label>
-  <!-- A text field that takes a URL which represents what will be searched when middle clicked with which search engine etc. %s is replaced with the search text -->
-  <br>
-  <br>
-  <label for="searchEngine">Search engine. %s is replaced with the search term:</label>
-  <input type="text" id="searchEngine" style="width: 95%;" placeholder="https://www.google.com/search?q=%s">  
-  <br>
-  <!-- <br>
-  <br> -->
-  <!-- <input type="checkbox" id="preventAutoscroll"> -->
-  <!-- <label for="preventAutoscroll">Disable autoscroll. Not necessary if holding Ctrl or Shift.</label> -->
-  <br>
-  <input type="checkbox" id="disableDomainCheck">
-  <label for="disableDomainCheck">Disable domain checking (treat all as search)</label>
-  <script src="options.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Middle Click to Search · Settings</title>
+  <link rel="icon" href="Middle_Click48.png">
+  <link rel="stylesheet" href="options.css">
+  <script type="module" src="options.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <img src="Middle_Click48.png" width="44" height="44" alt="">
+      <div><p class="eyebrow">MIDDLE CLICK TO SEARCH</p><h1>A small shortcut.<br>A faster way to find.</h1></div>
+    </header>
+    <p class="intro">Highlight text on a webpage, then press your mouse wheel to search it. Keep your flow, choose your destination.</p>
+    <form id="settings" aria-label="Search settings">
+      <fieldset id="controls" disabled>
+        <section class="card" aria-labelledby="search-title">
+          <div class="section-heading"><span class="number">01</span><div><h2 id="search-title">Your search destination</h2><p>Choose a search engine or bring your own.</p></div></div>
+          <label for="enginePreset">Search engine</label>
+          <select id="enginePreset"><option value="custom">Custom</option></select>
+          <label for="searchEngine">Search URL</label>
+          <input id="searchEngine" type="text" required spellcheck="false" autocomplete="off" aria-describedby="url-help url-error" placeholder="https://example.com/search?q=%s">
+          <p id="url-help" class="hint">Use <code>%s</code> for the selected text. HTTP and HTTPS URLs are supported.</p>
+          <p id="url-error" class="error" aria-live="polite"></p>
+          <div class="preview"><span>Example search · “curious cats”</span><output id="preview"></output></div>
+        </section>
+        <section class="card" aria-labelledby="behavior-title">
+          <div class="section-heading"><span class="number">02</span><div><h2 id="behavior-title">Make it feel right</h2><p>A few preferences for the way you browse.</p></div></div>
+          <label class="setting-row" for="newTabActive"><span><strong>Switch to the new tab</strong><small>Hold Ctrl or ⌘ while clicking to reverse this choice.</small></span><input id="newTabActive" type="checkbox"></label>
+          <label class="setting-row" for="disableDomainCheck"><span><strong>Always search selected text</strong><small>Search URLs and domain names too. Otherwise, open them directly.</small></span><input id="disableDomainCheck" type="checkbox"></label>
+          <label class="setting-row" for="clearSelection"><span><strong>Clear the highlight after opening</strong><small>Your selection stays in place if opening the tab fails.</small></span><input id="clearSelection" type="checkbox"></label>
+          <label class="setting-row" for="preventAutoscroll"><span><strong>Prevent scrolling when searching</strong><small>Disable the wheel’s default action when a selection is searched.</small></span><input id="preventAutoscroll" type="checkbox"></label>
+        </section>
+        <div class="actions"><button type="submit" id="save">Save preferences</button><button type="button" id="reset" class="secondary">Restore defaults</button><p id="status" role="status" aria-live="polite"></p></div>
+      </fieldset>
+    </form>
+    <footer><p>Built for one gesture. No account, analytics, or search history.</p><p>Native link clicks stay native. Browser settings pages and the Chrome Web Store don’t allow extensions to run.</p></footer>
+  </main>
 </body>
 </html>

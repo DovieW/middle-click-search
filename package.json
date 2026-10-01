@@ -1,0 +1,13 @@
+{
+  "name": "middle-click-search",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test tests/unit/*.test.js",
+    "test:browser": "playwright test",
+    "check": "node --check background.js && node --check get_text.js && node --check options.js && node --check lib/settings.js && node --check lib/routing.js"
+  },
+  "devDependencies": { "@playwright/test": "1.58.2" }
+}
